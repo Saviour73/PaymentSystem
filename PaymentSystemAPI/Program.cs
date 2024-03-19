@@ -1,0 +1,42 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using PaymentSystemAPI.Data;
+using PaymentSystemAPI.Interfaces.IRespository;
+using PaymentSystemAPI.Interfaces.IServices;
+using PaymentSystemAPI.Models.DomainModel;
+using PaymentSystemAPI.Profiles.Automappings;
+using PaymentSystemAPI.Respository;
+using PaymentSystemAPI.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<AppDbContext>(options =>
+         options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IMerchantService, MerchantService>();
+builder.Services.AddAutoMapper(typeof(PaymentSystemMappings));
+builder.Services.AddScoped<IBaseRespository<Merchant>, MerchantRepository>();
+
+builder.Services.AddScoped<IBaseRespository<Customer>, CustomerRepository>();
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
